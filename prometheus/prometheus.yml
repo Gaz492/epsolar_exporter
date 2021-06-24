@@ -3,4 +3,4 @@ scrape_configs:
     scrape_interval: 1m
     scrape_timeout: 15s
     static_configs:
-      - targets: ['epsolarExporter:2112']
+      - targets: ['epsolarexporter:2112']
