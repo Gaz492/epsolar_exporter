@@ -2,37 +2,46 @@ package main
 
 import (
 	"fmt"
-	"log"
-	"net/http"
-
+	"github.com/pelletier/go-toml"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/pterm/pterm"
+	"net/http"
+	"os"
 )
 
 func init() {
-	prometheus.MustRegister(newSolarCollector())
+	//prometheus.MustRegister(newSolarCollector())
 }
 
-type config struct {
-	listen string
-	port   string
-}
-
-func newConfig() config {
-	c := config{}
-	c.port = "6969"
-	c.listen = "0.0.0.0"
-	return c
-}
+var (
+	conf tomlConfig
+)
 
 func main() {
-	var conf = newConfig()
+	pterm.EnableDebugMessages()
+	//if _, err := toml.DecodeFile("config.toml", &conf); err != nil {
+	//	pterm.Error.Println(fmt.Sprintf("Config error: %s", err))
+	//	os.Exit(1)
+	//}
+	confTree, err := toml.LoadFile("config.toml")
+	if err != nil {
+		pterm.Error.Println(fmt.Sprintf("Config Error: %s", err))
+		os.Exit(1)
+	}
+	err = confTree.Unmarshal(&conf)
+	if err != nil {
+		pterm.Error.Println(fmt.Sprintf("Config Error: %s", err))
+		os.Exit(1)
+	}
 
-	log.Println("Starting epsolar_exporter")
-	log.Println("Listening on 0.0.0.0:6969")
-	log.Println(fmt.Sprintf("Listening on %s:%s", conf.listen, conf.port))
-	http.Handle("/metrics", promhttp.Handler())
+	pterm.Info.Println("Starting epsolar_exporter")
+	pterm.Info.Println(conf)
+	pterm.Info.Println(fmt.Sprintf("Listening on %s:%s", conf.HttpServer.Listen, conf.HttpServer.Port))
+	r := prometheus.NewRegistry()
+	r.MustRegister(newSolarCollector())
+	handler := promhttp.HandlerFor(r, promhttp.HandlerOpts{})
+	http.Handle("/metrics", handler)
 
-	//http.ListenAndServe(fmt.Sprintf("%s:%s", conf.listen, conf.port), nil)
-	log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%s", conf.listen, conf.port), nil))
+	pterm.Fatal.Println(http.ListenAndServe(fmt.Sprintf("%s:%s", conf.HttpServer.Listen, conf.HttpServer.Port), nil))
 }

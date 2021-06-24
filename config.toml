@@ -1,0 +1,13 @@
+# EpSolar exporter config
+title = "Exporter Config"
+
+[httpserver]
+listen = "0.0.0.0"
+port = "2112"
+
+[modbus]
+timeout = "5s"
+
+[controller]
+ip = "192.168.1.181"
+port = "8088"

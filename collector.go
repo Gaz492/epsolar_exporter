@@ -1,11 +1,11 @@
 package main
 
 import (
+	"github.com/Gaz492/gotracerwifi"
+	"github.com/prometheus/client_golang/prometheus"
 	"log"
 	"sync"
-
-	"github.com/jens18/gotracer"
-	"github.com/prometheus/client_golang/prometheus"
+	"time"
 )
 
 const (
@@ -23,12 +23,12 @@ type solarCollector struct {
 
 	batteryVoltage    *prometheus.Desc
 	batteryCurrent    *prometheus.Desc
-	batterySOC        *prometheus.Desc
+	//batterySOC        *prometheus.Desc
 	batteryTemp       *prometheus.Desc
 	batteryMaxVoltage *prometheus.Desc
 	batteryMinVoltage *prometheus.Desc
 
-	deviceTemp *prometheus.Desc
+	//deviceTemp *prometheus.Desc
 
 	loadActive  *prometheus.Desc
 	loadVoltage *prometheus.Desc
@@ -83,12 +83,12 @@ func newSolarCollector() *solarCollector {
 			nil, // no labels yet
 			nil,
 		),
-		batterySOC: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "", "battery_soc"),
-			"Battery State of Charge (%).",
-			nil, // no labels yet
-			nil,
-		),
+		//batterySOC: prometheus.NewDesc(
+		//	prometheus.BuildFQName(namespace, "", "battery_soc"),
+		//	"Battery State of Charge (%).",
+		//	nil, // no labels yet
+		//	nil,
+		//),
 		batteryTemp: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "battery_temp"),
 			"Battery temperature (external sensor) (Celcius).",
@@ -108,12 +108,12 @@ func newSolarCollector() *solarCollector {
 			nil,
 		),
 
-		deviceTemp: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "", "device_temp"),
-			"Device temperature (controller sensor) (Celcius).",
-			nil, // no labels yet
-			nil,
-		),
+		//deviceTemp: prometheus.NewDesc(
+		//	prometheus.BuildFQName(namespace, "", "device_temp"),
+		//	"Device temperature (controller sensor) (Celcius).",
+		//	nil, // no labels yet
+		//	nil,
+		//),
 
 		loadActive: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "load_active"),
@@ -225,7 +225,7 @@ func (c *solarCollector) Collect(ch chan<- prometheus.Metric) {
 // collect will execute the actual data collection
 func (c *solarCollector) collect(ch chan<- prometheus.Metric) error {
 	// fetch the status of the controller
-	tracer, err := gotracer.Status("/dev/ttyUSB0")
+	tracer, err := gotracerwifi.Status(conf.Controller.IP, conf.Controller.Port, conf.Modbus.Timeout.Duration)
 	if err != nil {
 		return err
 	}
@@ -234,131 +234,114 @@ func (c *solarCollector) collect(ch chan<- prometheus.Metric) error {
 	 *  report the collected data
 	 */
 
-	// store boolean values as a float (1 == true, 0 == false)
-	var loadIsActive float64
 	// Panel array
 	ch <- prometheus.MustNewConstMetric(
 		c.panelVoltage,
 		prometheus.GaugeValue,
-		float64(tracer.ArrayVoltage),
+		float64(tracer.Solar.Voltage),
 	)
 	ch <- prometheus.MustNewConstMetric(
 		c.panelCurrent,
 		prometheus.GaugeValue,
-		float64(tracer.ArrayCurrent),
+		float64(tracer.Solar.Current),
 	)
 	ch <- prometheus.MustNewConstMetric(
 		c.panelPower,
 		prometheus.GaugeValue,
-		float64(tracer.ArrayPower),
+		float64(tracer.Solar.Power),
 	)
 
 	// Batteries
 	ch <- prometheus.MustNewConstMetric(
 		c.batteryCurrent,
 		prometheus.GaugeValue,
-		float64(tracer.BatteryCurrent),
+		float64(tracer.Battery.Current),
 	)
 	ch <- prometheus.MustNewConstMetric(
 		c.batteryVoltage,
 		prometheus.GaugeValue,
-		float64(tracer.BatteryVoltage),
-	)
-	ch <- prometheus.MustNewConstMetric(
-		c.batterySOC,
-		prometheus.GaugeValue,
-		float64(tracer.BatterySOC),
+		float64(tracer.Battery.Voltage),
 	)
 	ch <- prometheus.MustNewConstMetric(
 		c.batteryTemp,
 		prometheus.GaugeValue,
-		float64(tracer.BatteryTemp),
+		float64(tracer.Battery.Temp),
 	)
 	ch <- prometheus.MustNewConstMetric(
 		c.batteryMinVoltage,
 		prometheus.GaugeValue,
-		float64(tracer.BatteryMinVoltage),
+		float64(tracer.Battery.MinVoltage),
 	)
 	ch <- prometheus.MustNewConstMetric(
 		c.batteryMaxVoltage,
 		prometheus.GaugeValue,
-		float64(tracer.BatteryMaxVoltage),
+		float64(tracer.Battery.MaxVoltage),
 	)
 
-	// Load output
-	if tracer.Load {
-		loadIsActive = 1
-	}
-	ch <- prometheus.MustNewConstMetric(
-		c.loadActive,
-		prometheus.GaugeValue,
-		loadIsActive,
-	)
 	ch <- prometheus.MustNewConstMetric(
 		c.loadVoltage,
 		prometheus.GaugeValue,
-		float64(tracer.LoadVoltage),
+		float64(tracer.Load.Voltage),
 	)
 	ch <- prometheus.MustNewConstMetric(
 		c.loadCurrent,
 		prometheus.GaugeValue,
-		float64(tracer.LoadCurrent),
+		float64(tracer.Load.Current),
 	)
 	ch <- prometheus.MustNewConstMetric(
 		c.loadPower,
 		prometheus.GaugeValue,
-		float64(tracer.LoadPower),
-	)
-
-	// controller infos
-	ch <- prometheus.MustNewConstMetric(
-		c.deviceTemp,
-		prometheus.GaugeValue,
-		float64(tracer.DeviceTemp),
+		float64(tracer.Load.Power),
 	)
 
 	// energy consumed
 	ch <- prometheus.MustNewConstMetric(
 		c.energyConsumedDaily,
 		prometheus.GaugeValue,
-		float64(tracer.EnergyConsumedDaily),
+		float64(tracer.Stats.Energy.Consumed.Day),
 	)
 	ch <- prometheus.MustNewConstMetric(
 		c.energyConsumedMonthly,
 		prometheus.GaugeValue,
-		float64(tracer.EnergyConsumedMonthly),
+		float64(tracer.Stats.Energy.Consumed.Month),
 	)
 	ch <- prometheus.MustNewConstMetric(
 		c.energyConsumedAnnual,
 		prometheus.GaugeValue,
-		float64(tracer.EnergyConsumedAnnual),
+		float64(tracer.Stats.Energy.Consumed.Annual),
 	)
 	ch <- prometheus.MustNewConstMetric(
 		c.energyConsumedTotal,
 		prometheus.GaugeValue,
-		float64(tracer.EnergyConsumedTotal),
+		float64(tracer.Stats.Energy.Consumed.Total),
 	)
 	// energy generated
 	ch <- prometheus.MustNewConstMetric(
 		c.energyGeneratedDaily,
 		prometheus.GaugeValue,
-		float64(tracer.EnergyGeneratedDaily),
+		float64(tracer.Stats.Energy.Generated.Day),
 	)
 	ch <- prometheus.MustNewConstMetric(
 		c.energyGeneratedMonthly,
 		prometheus.GaugeValue,
-		float64(tracer.EnergyGeneratedMonthly),
+		float64(tracer.Stats.Energy.Generated.Month),
 	)
 	ch <- prometheus.MustNewConstMetric(
 		c.energyGeneratedAnnual,
 		prometheus.GaugeValue,
-		float64(tracer.EnergyGeneratedAnnual),
+		float64(tracer.Stats.Energy.Generated.Annual),
 	)
 	ch <- prometheus.MustNewConstMetric(
 		c.energyGeneratedTotal,
 		prometheus.GaugeValue,
-		float64(tracer.EnergyGeneratedTotal),
+		float64(tracer.Stats.Energy.Generated.Total),
 	)
 
 	return nil
+}
+
+func (d *duration) UnmarshalText(text []byte) error {
+	var err error
+	d.Duration, err = time.ParseDuration(string(text))
+	return err
 }
