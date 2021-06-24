@@ -10,20 +10,12 @@ import (
 	"os"
 )
 
-func init() {
-	//prometheus.MustRegister(newSolarCollector())
-}
-
 var (
 	conf tomlConfig
 )
 
 func main() {
 	pterm.EnableDebugMessages()
-	//if _, err := toml.DecodeFile("config.toml", &conf); err != nil {
-	//	pterm.Error.Println(fmt.Sprintf("Config error: %s", err))
-	//	os.Exit(1)
-	//}
 	confTree, err := toml.LoadFile("config.toml")
 	if err != nil {
 		pterm.Error.Println(fmt.Sprintf("Config Error: %s", err))
