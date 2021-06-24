@@ -6,6 +6,8 @@ services:
         container_name: epsolarexporter
         ports: 
             - 2112:2112
+        networks: 
+            - containerproxy
     
     exporterprometheus:
         image: prom/prometheus
@@ -14,3 +16,9 @@ services:
             - 9091:9090
         volumes: 
             - ./prometheus:/etc/prometheus
+        networks: 
+            - containerproxy
+
+networks: 
+    containerproxy:
+        name: proxy
