@@ -1,0 +1,14 @@
+version: 3.9
+
+services:
+    epsolarExporter:
+        build: .
+        container_name: epsolarExporter
+    
+    exporterPrometheus:
+        image: prom/prometheus
+        container_name: exporterPrometheus
+        ports:
+            - 9001:9000
+        volumes: 
+            - ./prometheus:/etc/prometheus
