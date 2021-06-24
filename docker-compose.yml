@@ -4,6 +4,8 @@ services:
     epsolarexporter:
         build: .
         container_name: epsolarExporter
+        ports: 
+            - 2112:2112
     
     exporterprometheus:
         image: prom/prometheus
