@@ -1,11 +1,11 @@
 version: "3.9"
 
 services:
-    epsolarExporter:
+    epsolarexporter:
         build: .
         container_name: epsolarExporter
     
-    exporterPrometheus:
+    exporterprometheus:
         image: prom/prometheus
         container_name: exporterPrometheus
         ports:
