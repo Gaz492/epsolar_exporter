@@ -3,13 +3,13 @@ version: "3.9"
 services:
     epsolarexporter:
         build: .
-        container_name: epsolarExporter
+        container_name: epsolarexporter
         ports: 
             - 2112:2112
     
     exporterprometheus:
         image: prom/prometheus
-        container_name: exporterPrometheus
+        container_name: exporterprometheus
         ports:
             - 9091:9090
         volumes: 
