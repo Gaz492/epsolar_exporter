@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/Gaz492/gotracerwifi"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/pterm/pterm"
@@ -215,7 +216,7 @@ func (c *solarCollector) Collect(ch chan<- prometheus.Metric) {
 	c.mutex.Lock() // To protect metrics from concurrent collects.
 	defer c.mutex.Unlock()
 	if err := c.collect(ch); err != nil {
-		pterm.Error.Println("Error getting solar controller data: %s", err)
+		pterm.Error.Println(fmt.Sprintf("[%s]Error getting solar controller data: %s", time.Now().UTC(), err))
 		c.scrapeFailures.Inc()
 		c.scrapeFailures.Collect(ch)
 	}
