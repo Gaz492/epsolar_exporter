@@ -15,6 +15,7 @@ type httpserver struct {
 }
 
 type mbus struct {
+	Protocol string
 	Timeout duration
 }
 

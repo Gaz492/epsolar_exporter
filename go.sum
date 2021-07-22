@@ -1,5 +1,5 @@
-github.com/Gaz492/gotracerwifi v0.0.3 h1:3E8FQR0Rpa16GxUe4TMmQF2U79dJcvhXZvDboHnnA+o=
-github.com/Gaz492/gotracerwifi v0.0.3/go.mod h1:iByf3mkQwy7pCdz5jaHZnIkCdoEItBjgpXX91qUHVvA=
+github.com/Gaz492/gotracerwifi v0.0.4 h1:dNnsVx4p0YNyS3GfFRvcj3LFXf2GA19DCWTjGgKkMRc=
+github.com/Gaz492/gotracerwifi v0.0.4/go.mod h1:iByf3mkQwy7pCdz5jaHZnIkCdoEItBjgpXX91qUHVvA=
 github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
 github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
 github.com/alecthomas/units v0.0.0-20151022065526-2efee857e7cf/go.mod h1:ybxpYRFXyAe+OPACYpWeL0wqObRcbAqCMya13uyzqw0=

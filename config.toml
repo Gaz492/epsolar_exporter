@@ -6,8 +6,11 @@ listen = "0.0.0.0"
 port = "2112"
 
 [modbus]
+# If using eBox-Wifi-01 use "RTU_TCP" for EW11 use "TCP"
+protocol = "TCP"
 timeout = "5s"
 
 [controller]
-ip = "192.168.1.181"
-port = "8088"
+ip = "192.168.1.127"
+# If using eBox-Wifi-01 use "8088" for EW11 use "8899"
+port = "8899"

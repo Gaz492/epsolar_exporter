@@ -226,7 +226,7 @@ func (c *solarCollector) Collect(ch chan<- prometheus.Metric) {
 // collect will execute the actual data collection
 func (c *solarCollector) collect(ch chan<- prometheus.Metric) error {
 	// fetch the status of the controller
-	tracer, err := gotracerwifi.Status(conf.Controller.IP, conf.Controller.Port, conf.Modbus.Timeout.Duration)
+	tracer, err := gotracerwifi.Status(conf.Controller.IP, conf.Controller.Port, conf.Modbus.Timeout.Duration, conf.Modbus.Protocol)
 	if err != nil {
 		return err
 	}
